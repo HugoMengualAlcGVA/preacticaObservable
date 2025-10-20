@@ -8,30 +8,32 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
   styleUrl: './component1.scss'
 })
 export class Component1 {  
-  mensaje:BehaviorSubject<string>=new BehaviorSubject('Valor inicial');
-  mensaje$: Observable<string> = this.mensaje.asObservable();
+  _contador:BehaviorSubject<number> = new BehaviorSubject(0);
+  contador$: Observable<number> = this._contador.asObservable();
 
   miSuscripcion!: Subscription;
 
-
-  subscribir(){
+  
+  ngOnInit(): void{
     console.log('Nos suscribimos. Recibiremos todos los datos que se emitan')
-      this.miSuscripcion = this.mensaje$.subscribe({
+      this.miSuscripcion = this.contador$.subscribe({
       next: dato => console.log(dato),
       error: error => console.error(error),
       complete: () => console.log('Observable completado')
     });
   }
 
+  ngOnDestroy(): void{
+    this.cancelar();
+  }
+
   emitir(){
     console.log('Emitimos valores por el observable');
-    this.mensaje.next("Valor 1");
-    this.mensaje.next("Valor 2");
-    this.mensaje.next("Valor n");
+    this._contador.next(this._contador.value + 1);
   }
   
   completar(){
-    this.mensaje.complete()
+    this._contador.complete()
     console.log('Observable completado. Ya no se emiten mas datos')
   }
 
