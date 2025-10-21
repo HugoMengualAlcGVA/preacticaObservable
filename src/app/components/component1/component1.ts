@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { ContadorService } from '../../services/contador-service';
 
 @Component({
   selector: 'app-component1',
@@ -8,37 +9,44 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
   styleUrl: './component1.scss'
 })
 export class Component1 {  
-  _contador:BehaviorSubject<number> = new BehaviorSubject(0);
-  contador$: Observable<number> = this._contador.asObservable();
+  private contadorService = inject(ContadorService);
+  private miSuscripcion!: Subscription;
 
-  miSuscripcion!: Subscription;
+  con: number = 0;
 
-  
   ngOnInit(): void{
     console.log('Nos suscribimos. Recibiremos todos los datos que se emitan')
-      this.miSuscripcion = this.contador$.subscribe({
-      next: dato => console.log(dato),
-      error: error => console.error(error),
-      complete: () => console.log('Observable completado')
-    });
+    this.miSuscripcion = this.subscribeToContador();
   }
+
+  subscribeToContador(){
+    return this.contadorService.contador$.subscribe({
+        next: dato => this.con = dato,
+        error: error => console.error(error),
+        complete: () => console.log('Observable completado')
+      });
+};
 
   ngOnDestroy(): void{
-    this.cancelar();
+    if(this.miSuscripcion){
+      this.cancelarSuscripcion();
+    }
   }
 
-  emitir(){
+  incrementar(){
     console.log('Emitimos valores por el observable');
-    this._contador.next(this._contador.value + 1);
+    this.contadorService.incrementar(this.con + 1);
   }
   
-  completar(){
-    this._contador.complete()
+  completarObservable(){
+    this.contadorService.complete()
     console.log('Observable completado. Ya no se emiten mas datos')
   }
 
-  cancelar(){
-    this.miSuscripcion.unsubscribe();
+  cancelarSuscripcion(){
+    if(this.miSuscripcion){
+      this.miSuscripcion.unsubscribe();
+    }
     console.log('Cancelacion realizada. No se reciben mas datos');
   }
 }

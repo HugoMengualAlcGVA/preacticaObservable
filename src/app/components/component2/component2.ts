@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { ContadorService } from '../../services/contador-service';
 
 @Component({
   selector: 'app-component2',
@@ -8,35 +9,45 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
   styleUrl: './component2.scss'
 })
 export class Component2 {  
-  mensaje:BehaviorSubject<string>=new BehaviorSubject('Valor inicial');
-  mensaje$: Observable<string> = this.mensaje.asObservable();
+  private contadorService = inject(ContadorService);
+  private miSuscripcion!: Subscription;
 
-  miSuscripcion!: Subscription;
+  con: number = 0;
 
-
-  subscribir(){
+  ngOnInit(): void{
     console.log('Nos suscribimos. Recibiremos todos los datos que se emitan')
-      this.miSuscripcion = this.mensaje$.subscribe({
-      next: dato => console.log(dato),
-      error: error => console.error(error),
-      complete: () => console.log('Observable completado')
-    });
+    this.miSuscripcion = this.subscribeToContador();
   }
 
-  emitir(){
+  subscribeToContador(){
+    this.cancelarSuscripcion(); 
+    return this.contadorService.contador$.subscribe({
+        next: dato => this.con = dato,
+        error: error => console.error(error),
+        complete: () => console.log('Observable completado')
+      });
+};
+
+  ngOnDestroy(): void{
+    if(this.miSuscripcion){
+      this.cancelarSuscripcion();
+    }
+  }
+
+  incrementar(){
     console.log('Emitimos valores por el observable');
-    this.mensaje.next("Valor 1");
-    this.mensaje.next("Valor 2");
-    this.mensaje.next("Valor n");
+    this.contadorService.incrementar(this.con + 1);
   }
   
-  completar(){
-    this.mensaje.complete()
+  completarObservable(){
+    this.contadorService.complete()
     console.log('Observable completado. Ya no se emiten mas datos')
   }
 
-  cancelar(){
-    this.miSuscripcion.unsubscribe();
+  cancelarSuscripcion(){
+    if(this.miSuscripcion){
+      this.miSuscripcion.unsubscribe();
+    }
     console.log('Cancelacion realizada. No se reciben mas datos');
   }
 }

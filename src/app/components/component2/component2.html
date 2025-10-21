@@ -1,12 +1,13 @@
-<button  (click)="subscribir()" class="m-1 btn btn-primary">
-    Inicia Suscripcion
+<h3>Componente 1</h3>
+<p>Contador {{con}}</p>
+<div class="row">
+  <button  (click)="incrementar()" class="m-1 btn btn-success">
+    Incrementar
   </button>
-  <button  (click)="emitir()" class="m-1 btn btn-secondary">
-    Emitir FLujo de Datos
+  <button  (click)="completarObservable()" class="m-1 btn btn-warning">
+    Completar Obvservable
   </button>
-  <button  (click)="completar()" class="m-1 btn btn-warning">
-    Completar Suscripcion
-  </button>
-  <button  (click)="cancelar()" class="m-1 btn btn-danger">
+  <button  (click)="cancelarSuscripcion()" class="m-1 btn btn-danger">
     Cancelar Suscripcion
   </button>
+</div>
